@@ -1,0 +1,21 @@
+{
+    "name": "Distance Checker",
+    "description": "Quickly check distances for destinations",
+    "version": "0.0.1",
+    "permissions": [
+        "activeTab",
+        "storage",
+        "contextMenus",
+        "tabs"
+    ],
+    "background": {
+        "scripts": [
+            "main.js"
+        ]
+    },
+    "browser_action": {
+        "default_title": "Set your destinations",
+        "default_popup": "popup.html"
+    },
+    "manifest_version": 2
+}
