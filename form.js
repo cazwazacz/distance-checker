@@ -1,3 +1,5 @@
+var destinationsArray = [];
+
 var div = document.getElementById('destinations');
 
 function createTableRow(text) {
@@ -21,34 +23,35 @@ function createTableRow(text) {
 
     tbody.appendChild(tr);
 
-    // addDeleteListeners();
+    addDeleteListeners();
+}
+
+function deleteFromChromeStorage(thing) {
+    chrome.storage.sync.get('destinations', function(result) {
+        var newDestinations = result.destinations;
+        var indexOfThing = newDestinations.indexOf(thing);
+
+        newDestinations.splice(indexOfThing, 1);
+
+        chrome.storage.sync.set(({ destinations: newDestinations }));
+    })
 }
 
 chrome.storage.sync.get('destinations', function (result) {
     if (typeof result.destinations === 'undefined') {
         chrome.storage.sync.set(({ destinations: [] }));
 
-        chrome.storage.sync.get('destinations', function(result) {
-            result.destinations.forEach(function (destination) {
-                createTableRow(destination);
-            })
-        })
+        createRows();
     } else {
-        chrome.storage.sync.get('destinations', function(result) {
-            result.destinations.forEach(function (destination) {
-                createTableRow(destination);
-            })
-        })
+        createRows();
     }
 
-    addDeleteListeners();
 });
 
 document.getElementById('add').addEventListener('click', function () {
     var textInput = document.getElementById('input').value;
 
     createTableRow(textInput);
-    addDeleteListeners();
 
     chrome.storage.sync.get('destinations', function (result) {
         var destinations = result.destinations;
@@ -59,33 +62,24 @@ document.getElementById('add').addEventListener('click', function () {
     });
 });
 
-// var deleteButtons = document.getElementsByClassName('btn-danger');
-
-// console.log(Array.from(deleteButtons));
-
-// Array.from(deleteButtons).forEach(function(element) {
-//     console.log(element);
-//     element.addEventListener('click', function() {
-//         console.log(this);
-//     });
-// })
-
 function addDeleteListeners() {
     var deleteButtons = document.getElementsByClassName('btn-danger');
 
-    console.log(deleteButtons);
+    Array.from(deleteButtons).forEach(function(button) {
+        button.addEventListener('click', function() {
+            var name = this.parentNode.parentNode.firstChild.innerHTML;
+            deleteFromChromeStorage(name);
 
-    for (var i = 0; i < deleteButtons.length; i++) {
-        console.log(deleteButtons[i]);
-    }
-
-    
-    // Array.from(document.getElementsByClassName('btn-danger')).forEach(function(button) {
-    //     console.log(button);
-    // });
-    // document.getElementsByClassName('btn-danger').forEach(function(element) {
-    //     element.addEventListener('click', function() {
-    //         console.log(this);
-    //     });
-    // })
+            this.parentNode.parentNode.remove();
+        })
+    })
 }
+
+function createRows() {
+    chrome.storage.sync.get('destinations', function(result) {
+        result.destinations.forEach(function (destination) {
+            createTableRow(destination);
+        })
+    })
+}
+
